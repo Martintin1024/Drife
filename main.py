@@ -1,33 +1,19 @@
-import sqlite3
-import pandas as pd
+from funciones import insertNewUser, showUsers
+print("BIENVENIDO AL FOKIN PROGRAMA DE LAS FOKIN RULETAS")
+print("Por favor, seleccione una opción:")
+print("1. Insertar nuevo usuario")
+print("2. Mostrar usuarios")
+print("0. Salir")
 
-## CREAR UN USUARIO ##
+while True:
+    opcion = input("Ingrese el número de la opción deseada: ")
 
-try:
-    conn = sqlite3.connect("baseDeLaRuleta.db")
-
-    cursor = conn.cursor()
-
-    nuevoUsuario = "Martin"
-    sqlInsertar = "INSERT INTO Usuario (nombreUsuario) VALUES (?)"
-
-    cursor.execute(sqlInsertar, (nuevoUsuario,))
-
-    conn.commit()
-
-    print(f"¡El usuario ", nuevoUsuario, " fue agregado con éxito!")
-
-except sqlite3.Error as e:
-    print(f"Error al insertar datos en la base de datos: ", e)
-    if conn:
-        conn.rollback()
-
-finally:
-    if conn:
-        conn.close()
-        print("Saliendo de la base de datos")
-
-print("-" * 20)
-
-## VER USUARIOS ##
-
+    if opcion == "1":
+        insertNewUser()
+    elif opcion == "2":
+        showUsers()
+    elif opcion == "0":
+        print("Saliendo del programa. ¡Hasta luego!")
+        break
+    else:
+        print("Opción no válida. Por favor, intente de nuevo.")
