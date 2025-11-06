@@ -36,7 +36,7 @@ def showUsers():
         
         cursor = conn.cursor()
 
-        sqlMostrar = "SELECT * FROM Usuarios"
+        sqlMostrar = "SELECT * FROM Users"
 
         cursor.execute(sqlMostrar)
 
