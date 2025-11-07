@@ -5,17 +5,17 @@ from functions import logInUser, registerNewUser
 while True:
     option = showLogInMenu()
 
-    if option == 1:
+    if option == "1":
         continuing = logInUser()
         if continuing:
-            actionMainMenu()
+            actionMainMenu(currentUserId = continuing)
         else:
             cls()
             print("Inicio de sesión fallido. Intente de nuevo.")
-    elif option == 2:
+    elif option == "2":
         registerNewUser()
-        cls()
-        print("Registro completado. Ahora puede iniciar sesión.")
-    elif option == 0:
+        if continuing:
+            print("Registro completado. Ahora puede iniciar sesión.")
+    elif option == "0":
         break
     cls()

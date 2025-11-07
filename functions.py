@@ -1,24 +1,30 @@
 import sqlite3
 import pandas as pd
+import getpass as gp
 
-def insertNewUser():
+def registerNewUser():
     try:
         conn = sqlite3.connect("baseDeLaRuleta.db")
         cursor = conn.cursor()
 
-        userName = input("Ingresar nuevo usuario: ")
-        if not userName:
-            print("El nombre de usuario no puede estar vacío.")
-            return
+        print("REGISTRO DE NUEVO USUARIO")
+        print("================================")
+        userName = input("NOMBRE DE USUARIO: ")
+        passWord = gp.getpass("CONTRASEÑA: ")
+        if not passWord or not userName:
+            input("El nombre de usuario no puede estar vacío. Pulse enter para continuar.")
+            return False
 
-        sqlInsertar = "INSERT INTO Users (userName) VALUES (?)"
-        cursor.execute(sqlInsertar, (userName,))
-        conn.commit()        
+        sqlInsertar = "INSERT INTO Users (userName, passWord) VALUES (?, ?)"
+        cursor.execute(sqlInsertar, (userName, passWord))
+        conn.commit()   
+             
 
     except sqlite3.Error as e:
-        print(f"Error al insertar datos en la base de datos: ", e)
+        print(f"Error al insertar datos en la base de datos: {e}. Pulse enter para continuar.")
         if conn:
             conn.rollback()
+        return False
 
     else:
         print(f"¡El usuario {userName} fue agregado con éxito!")
@@ -26,9 +32,43 @@ def insertNewUser():
     finally:
         if conn:
             conn.close()
-            print("Saliendo de la base de datos")
+            input()
+    return True
 
-    return
+def logInUser():
+    try:
+        conn = sqlite3.connect("baseDeLaRuleta.db")
+        cursor = conn.cursor()
+
+        print("INICIO DE SESIÓN")
+        print("================================")
+        userName = input("NOMBRE DE USUARIO: ")
+        passWord = gp.getpass("CONTRASEÑA: ")
+
+        sqlBuscar = "SELECT * FROM Users WHERE userName = ? AND passWord = ?"
+        cursor.execute(sqlBuscar, (userName, passWord))
+
+        result = cursor.fetchone()
+        
+        if result:
+            currentUserId = result[0]
+            print(f"¡Bienvenido {userName}!")
+        else:
+            currentUserId = None
+            print("Nombre de usuario o contraseña incorrectos.")
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}. Pulse enter para continuar.")
+        if conn:
+            conn.rollback()
+
+    
+    finally:
+        if conn:
+            conn.close()
+    input()
+    return currentUserId
+
 
 def showUsers():
     try:
@@ -59,6 +99,37 @@ def showUsers():
     finally:
         if conn:
             conn.close()
-            print("Escapando de Latam... " \
-            "Digo de la base de datos")
+        input()
+    return 
+
+def createRoulette(currentUserId):
+    try:
+        conn = sqlite3.connect("baseDeLaRuleta.db")
+        cursor = conn.cursor()
+
+        print("Creando tabla de ruletas...")
+        print("================================")
+        nameRoulette = input("¿Cual va a ser el nombre de la ruleta?")
+
+        sqlCrearRuleta = """
+        INSERT INTO Roulettes (nameRoulette, idUser) VALUES (?, ?)
+        """
+
+        cursor.execute(sqlCrearRuleta, (nameRoulette,))
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"Error al crear la ruleta: {e}")
+        if conn:
+            conn.rollback()
+
+    else:
+        print("¡La ruleta fue creada con éxito!")
+
+    finally:
+        if conn:
+            conn.close()
+            print("Saliendo de la base de datos")
+
+    input()
     return
