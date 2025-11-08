@@ -5,6 +5,7 @@ import getpass as gp
 dbPath = "Database/baseDeLaRuleta.db"
 
 def registerNewUser():
+    conn = None
     try:
         conn = sqlite3.connect(dbPath)
         cursor = conn.cursor()
@@ -13,7 +14,7 @@ def registerNewUser():
         print("================================")
         userName = input("NOMBRE DE USUARIO: ")
         passWord = gp.getpass("CONTRASEÑA: ")
-        if not passWord or not userName:
+        if (not passWord) or (not userName):
             input("El nombre de usuario no puede estar vacío. Pulse enter para continuar.")
             return False
 
@@ -38,6 +39,7 @@ def registerNewUser():
     return True
 
 def logInUser():
+    conn = None
     try:
         conn = sqlite3.connect(dbPath)
         cursor = conn.cursor()
@@ -73,6 +75,7 @@ def logInUser():
 
 
 def showUsers():
+    conn = None
     try:
         conn = sqlite3.connect(dbPath)
         
@@ -105,6 +108,7 @@ def showUsers():
     return 
 
 def createRoulette(currentUserId):
+    conn = None
     try:
         conn = sqlite3.connect(dbPath)
         cursor = conn.cursor()
@@ -136,3 +140,44 @@ def createRoulette(currentUserId):
 
     input()
     return
+
+def selectRoulette(currentUserId):
+    conn = None
+    idRoulette = None
+    try:
+        conn = sqlite3.connect(dbPath)
+        cursor = conn.cursor()
+
+        print("Seleccionar ruleta")
+        print("================================")
+
+        sqlMostrarRuletas = """
+        SELECT idRoulette, nameRoulette FROM Roulettes WHERE idUser = ?
+        """
+
+        cursor.execute(sqlMostrarRuletas, (currentUserId,))
+
+        results = cursor.fetchall()
+
+        if results:
+            for row in results:
+                print(f"ID: {row[0]} - Nombre: {row[1]}")
+            selectedId = input("Ingrese el ID de la ruleta que desea seleccionar: ")
+            idRoulette = int(selectedId)
+        else:
+            print("No hay ruletas disponibles para este usuario.")
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        if conn:
+            conn.rollback()
+
+    else:
+        print("¡Ruleta seleccionada con éxito!")
+
+    finally:
+        if conn:
+            conn.close()
+
+    input()
+    return idRoulette
