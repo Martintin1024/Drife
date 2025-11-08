@@ -1,5 +1,5 @@
-from functions import createRoulette, showUsers
-from visualMenu import showMainMenu, cls
+from .functions import createRoulette, showUsers
+from UI.visualMenu import showMainMenu, cls
 
 def actionMainMenu(currentUserId = None):
     while True:

@@ -1,6 +1,6 @@
-from visualMenu import showLogInMenu, cls
-from actionMenues import actionMainMenu
-from functions import logInUser, registerNewUser
+from UI.visualMenu import showLogInMenu, cls
+from logic.actionMenues import actionMainMenu
+from logic.functions import logInUser, registerNewUser
 
 while True:
     option = showLogInMenu()

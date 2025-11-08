@@ -2,9 +2,11 @@ import sqlite3
 import pandas as pd
 import getpass as gp
 
+dbPath = "Database/baseDeLaRuleta.db"
+
 def registerNewUser():
     try:
-        conn = sqlite3.connect("baseDeLaRuleta.db")
+        conn = sqlite3.connect(dbPath)
         cursor = conn.cursor()
 
         print("REGISTRO DE NUEVO USUARIO")
@@ -37,7 +39,7 @@ def registerNewUser():
 
 def logInUser():
     try:
-        conn = sqlite3.connect("baseDeLaRuleta.db")
+        conn = sqlite3.connect(dbPath)
         cursor = conn.cursor()
 
         print("INICIO DE SESIÓN")
@@ -72,7 +74,7 @@ def logInUser():
 
 def showUsers():
     try:
-        conn = sqlite3.connect("baseDeLaRuleta.db")
+        conn = sqlite3.connect(dbPath)
         
         cursor = conn.cursor()
 
@@ -104,18 +106,19 @@ def showUsers():
 
 def createRoulette(currentUserId):
     try:
-        conn = sqlite3.connect("baseDeLaRuleta.db")
+        conn = sqlite3.connect(dbPath)
         cursor = conn.cursor()
 
         print("Creando tabla de ruletas...")
+        print(currentUserId)
         print("================================")
-        nameRoulette = input("¿Cual va a ser el nombre de la ruleta?")
+        nameRoulette = input("¿Cual va a ser el nombre de la ruleta? ")
 
         sqlCrearRuleta = """
-        INSERT INTO Roulettes (nameRoulette, idUser) VALUES (?, ?)
+        INSERT INTO Roulettes (idUser, nameRoulette) VALUES (?, ?)
         """
 
-        cursor.execute(sqlCrearRuleta, (nameRoulette,))
+        cursor.execute(sqlCrearRuleta, (currentUserId, nameRoulette,))
         conn.commit()
 
     except sqlite3.Error as e:
