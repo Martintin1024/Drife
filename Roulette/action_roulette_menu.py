@@ -1,32 +1,33 @@
-from .functions import createRoulette, selectRoulette
-from UI.visualMenu import  cls, showMainMenu, showRouletteMenu
+from Roulette.roulette_menu_display import show_main_menu, show_roulette_menu
+from Roulette.crud_roulette import create_roulette, select_roulette
+from Utilities.helpers import cls
 
-def actionMainMenu(currentUserId = None):
+def action_main_menu(current_user_id = None):
     while True:
 
-        opcion = showMainMenu()
+        opcion = show_main_menu()
 
         if opcion == "0":
             print("Saliendo del programa. ¡Hasta luego!")
             return
         
         elif opcion == "1":
-            createRoulette(currentUserId)
+            create_roulette(current_user_id)
         
         elif opcion == "2":
-            currentRouletteId = selectRoulette(currentUserId)
-            if currentRouletteId != None:
-                ActionRouletteMenu(currentUserId, currentRouletteId)
+            current_roulette_id = select_roulette(current_user_id)
+            if current_roulette_id != None:
+                action_roulette_menu(current_user_id, current_roulette_id)
         
         else:
             print("Opción no válida. Por favor, intente de nuevo.")
         
         cls()
 
-def ActionRouletteMenu(currentUserId, currentRouletteId):
+def action_roulette_menu(current_user_id, current_roulette_id):
     while True:
 
-        opcion = showRouletteMenu()
+        opcion = show_roulette_menu()
 
         if opcion == "0":
             print("Regresando al menú principal.")
@@ -44,4 +45,5 @@ def ActionRouletteMenu(currentUserId, currentRouletteId):
         else:
             print("Opción no válida. Por favor, intente de nuevo.")
         
+        input()
         cls()
