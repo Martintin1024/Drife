@@ -1,1 +1,83 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="baseDeLaRuleta.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2254"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="3" parent="0"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Opcion" custom_title="0" dock_id="1" table="4,6:mainOpcion"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011e00ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">SELECT * FROM Usuario</sql><current_tab id="0"/></tab_sql></sqlb_project>
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="roulette_data.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2244"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="0" parent="0"/><expanded_item id="1" parent="0"/><expanded_item id="2" parent="0"/><expanded_item id="3" parent="0"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Options" custom_title="0" dock_id="1" table="4,7:mainOptions"/><dock_state state="000000ff00000000fd00000001000000020000062b00000379fc0100000001fb000000160064006f0063006b00420072006f007700730065003101000000000000062b0000011700ffffff000002980000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">-- 1. Preparación Global
+
+-- 1. Deshabilitar la verificación de Claves Foráneas temporalmente
+PRAGMA foreign_keys = OFF;
+
+-- *** LA LÍNEA 'BEGIN TRANSACTION;' HA SIDO ELIMINADA PARA EVITAR EL ERROR ***
+
+---
+
+-- 2. Migración de la Tabla `Users`
+ALTER TABLE Users RENAME TO Users_old;
+CREATE TABLE Users (
+    &quot;user_id&quot; INTEGER,
+    &quot;user_name&quot; TEXT NOT NULL UNIQUE,
+    &quot;password&quot; TEXT,
+    PRIMARY KEY(&quot;user_id&quot; AUTOINCREMENT)
+);
+INSERT INTO Users (user_id, user_name, password)
+SELECT idUser, user_name, pass_word
+FROM Users_old;
+DROP TABLE Users_old;
+
+---
+
+-- 3. Migración de la Tabla `Roulettes`
+ALTER TABLE Roulettes RENAME TO Roulettes_old;
+CREATE TABLE Roulettes (
+    &quot;roulette_id&quot; INTEGER NOT NULL,
+    &quot;user_id&quot; INTEGER NOT NULL,
+    &quot;name_roulette&quot; TEXT,
+    PRIMARY KEY(&quot;roulette_id&quot; AUTOINCREMENT),
+    FOREIGN KEY(&quot;user_id&quot;) REFERENCES &quot;Users&quot;(&quot;user_id&quot;)
+);
+INSERT INTO Roulettes (roulette_id, user_id, name_roulette)
+SELECT idRoulette, id_user, name_roulette
+FROM Roulettes_old;
+DROP TABLE Roulettes_old;
+
+---
+
+-- 4. Migración de la Tabla `Options`
+ALTER TABLE Options RENAME TO Options_old;
+CREATE TABLE Options (
+    &quot;option_id&quot; INTEGER,
+    &quot;roulette_id&quot; INTEGER,
+    &quot;name_option&quot; TEXT,
+    &quot;probability&quot; REAL,
+    PRIMARY KEY(&quot;option_id&quot; AUTOINCREMENT),
+    FOREIGN KEY(&quot;roulette_id&quot;) REFERENCES &quot;Roulettes&quot;(&quot;roulette_id&quot;)
+);
+INSERT INTO Options (option_id, roulette_id, name_option, probability)
+SELECT idOption, id_roulette, name_option, probability
+FROM Options_old;
+DROP TABLE Options_old;
+
+---
+
+-- 5. Migración de la Tabla `Spins`
+ALTER TABLE Spins RENAME TO Spins_old;
+CREATE TABLE Spins (
+    &quot;spin_id&quot; INTEGER,
+    &quot;roulette_id&quot; INTEGER NOT NULL,
+    &quot;user_id&quot; INTEGER NOT NULL,
+    &quot;winner_option_id&quot; INTEGER NOT NULL,
+    PRIMARY KEY(&quot;spin_id&quot; AUTOINCREMENT),
+    FOREIGN KEY(&quot;roulette_id&quot;) REFERENCES &quot;Roulettes&quot;(&quot;roulette_id&quot;),
+    FOREIGN KEY(&quot;user_id&quot;) REFERENCES &quot;Users&quot;(&quot;user_id&quot;),
+    FOREIGN KEY(&quot;winner_option_id&quot;) REFERENCES &quot;Options&quot;(&quot;option_id&quot;)
+);
+INSERT INTO Spins (spin_id, roulette_id, user_id, winner_option_id)
+SELECT id_spin, id_roulette, id_user, id_winner_option
+FROM Spins_old;
+DROP TABLE Spins_old;
+
+---
+
+-- 6. Finalización Global
+
+-- 6.1 Confirmar la transacción
+COMMIT;
+
+-- 6.2 Habilitar de nuevo la verificación de Claves Foráneas
+PRAGMA foreign_keys = ON;</sql><current_tab id="0"/></tab_sql></sqlb_project>
