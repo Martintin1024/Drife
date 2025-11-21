@@ -9,4 +9,5 @@ def pause():
     return
 
 def set_db_path():
-    return "Data/roulette_data.db"
+    path = os.path.join(os.path.dirname(__file__), '..', 'Data', 'roulette_data.db')
+    return os.path.abspath(path)

@@ -1,6 +1,5 @@
 import sqlite3
 import getpass as gp
-import pandas as pd
 from Utilities.helpers import set_db_path
 
 def register_new_user():
@@ -72,32 +71,5 @@ def log_in_user():
         if conn:
             conn.close()
     input()
-    return current_user_id
+    return int(current_user_id)
 
-
-def show_users():
-    db_path = set_db_path()
-    conn = None
-    try:
-        conn = sqlite3.connect(db_path)
-        
-        cursor = conn.cursor()
-
-        sql_mostrar = "SELECT * FROM Users"
-
-        cursor.execute(sql_mostrar)
-
-        results = cursor.fetchall()
-
-        results_dF = pd.DataFrame(results)
-
-        try:
-            print(results_dF)
-        except Exception as e:
-            print(f"Error al mostrar los datos: {e}")
-
-    finally:
-        if conn:
-            conn.close()
-        input()
-    return 

@@ -1,5 +1,5 @@
-from Roulette.roulette_menu_display import show_main_menu, show_roulette_menu
-from Roulette.crud_roulette import create_roulette, select_roulette
+from Roulette.menu_display import show_main_menu, show_roulette_menu
+from Roulette.crud import create_roulette, select_roulette
 from Utilities.helpers import cls
 
 def action_main_menu(current_user_id = None):

@@ -1,6 +1,6 @@
-from Users.users_menu_display import show_log_in_menu
-from Roulette.action_roulette_menu import action_main_menu
-from Users.crud_users import log_in_user, register_new_user
+from Users.menu_display import show_log_in_menu
+from Roulette.action_menu import action_main_menu
+from Users.crud import log_in_user, register_new_user
 from Utilities.helpers import cls
 
 while True:
