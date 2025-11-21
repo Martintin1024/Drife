@@ -73,3 +73,97 @@ def log_in_user():
     input()
     return int(current_user_id)
 
+def update_user_password(current_user_id):
+    db_path = set_db_path()
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        print("ACTUALIZAR CONTRASEÑA")
+        print("================================")
+        new_password = gp.getpass("NUEVA CONTRASEÑA: ")
+        confirm_password = gp.getpass("CONFIRMAR CONTRASEÑA: ")
+
+        if new_password != confirm_password:
+            print("Las contraseñas no coinciden. Pulse enter para continuar.")
+            return
+        else:
+            sql_actualizar = "UPDATE Users SET password = ? WHERE user_id = ?"
+            cursor.execute(sql_actualizar, (new_password, current_user_id))
+            conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"Error al actualizar la contraseña: {e}. Pulse enter para continuar.")
+        if conn:
+            conn.rollback()
+
+    else:
+        print("¡Contraseña actualizada con éxito!")
+
+    finally:
+        if conn:
+            conn.close()
+    input()
+    return
+
+def update_user_name(current_user_id):
+    db_path = set_db_path()
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        print("ACTUALIZAR NOMBRE DE USUARIO")
+        print("================================")
+        new_user_name = input("NUEVO NOMBRE DE USUARIO: ")
+
+        sql_actualizar = "UPDATE Users SET user_name = ? WHERE user_id = ?"
+        cursor.execute(sql_actualizar, (new_user_name, current_user_id))
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"Error al actualizar el nombre de usuario: {e}. Pulse enter para continuar.")
+        if conn:
+            conn.rollback()
+
+    else:
+        print("¡Nombre de usuario actualizado con éxito!")
+
+    finally:
+        if conn:
+            conn.close()
+    input()
+    return
+
+def delete_user_account(current_user_id):
+    db_path = set_db_path()
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        print("ELIMINAR CUENTA DE USUARIO")
+        print("================================")
+        confirmation = input("¿Está seguro de que desea eliminar su cuenta? Esta acción no se puede deshacer. (s/n): ")
+        if confirmation.lower() != 's':
+            print("Eliminación de cuenta cancelada. Pulse enter para continuar.")
+            return
+
+        sql_eliminar = "DELETE FROM Users WHERE user_id = ?"
+        cursor.execute(sql_eliminar, (current_user_id,))
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"Error al eliminar la cuenta: {e}. Pulse enter para continuar.")
+        if conn:
+            conn.rollback()
+
+    else:
+        print("¡Cuenta eliminada con éxito!")
+
+    finally:
+        if conn:
+            conn.close()
+    input()
+    return
