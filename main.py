@@ -10,9 +10,9 @@ while True:
         continuing = log_in_user()
         if continuing:
             action_main_menu(current_user_id = continuing)
-        else:
+        elif continuing is None:
             cls()
-            print("Inicio de sesión fallido. Intente de nuevo.")
+            input("Inicio de sesión fallido. Intente de nuevo.")
     elif option == "2":
         register_new_user()
         if continuing:

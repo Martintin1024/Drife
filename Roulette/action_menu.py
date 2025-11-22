@@ -1,6 +1,7 @@
 from Roulette.menu_display import show_main_menu, show_roulette_menu
 from Roulette.crud import create_roulette, select_roulette
 from Utilities.helpers import cls
+from Roulette.Options.action_menu import action_crud_menu
 
 def action_main_menu(current_user_id = None):
     while True:
@@ -15,16 +16,16 @@ def action_main_menu(current_user_id = None):
             create_roulette(current_user_id)
         
         elif opcion == "2":
-            current_roulette_id = select_roulette(current_user_id)
+            current_roulette_id, current_roulette_name = select_roulette(current_user_id)
             if current_roulette_id != None:
-                action_roulette_menu(current_user_id, current_roulette_id)
+                action_roulette_menu(current_roulette_id, current_roulette_name)
         
         else:
             print("Opción no válida. Por favor, intente de nuevo.")
         
         cls()
 
-def action_roulette_menu(current_user_id, current_roulette_id):
+def action_roulette_menu(current_roulette_id, current_roulette_name):
     while True:
 
         opcion = show_roulette_menu()
@@ -37,7 +38,7 @@ def action_roulette_menu(current_user_id, current_roulette_id):
             print("Aca tendrias la opcion de jugar la ruleta")
         
         elif opcion == "2":
-            print("Aca tendrias la opcion de editar la ruleta")
+            action_crud_menu(current_roulette_id, current_roulette_name)
 
         elif opcion == "3":
             print("Aca tendrias la opcion de eliminar la ruleta")

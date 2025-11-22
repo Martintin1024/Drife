@@ -16,11 +16,11 @@ def create_roulette(current_user_id):
         print("================================")
         name_roulette = input("¿Cual va a ser el nombre de la ruleta? ")
 
-        sql_crear_ruleta = """
+        sql_create_roulette = """
         INSERT INTO Roulettes (user_id, name_roulette) VALUES (?, ?)
         """
 
-        cursor.execute(sql_crear_ruleta, (current_user_id, name_roulette,))
+        cursor.execute(sql_create_roulette, (current_user_id, name_roulette,))
         conn.commit()
 
     except sqlite3.Error as e:
@@ -46,15 +46,24 @@ def select_roulette(current_user_id):
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
+        
+        sql_count_roulettes = """SELECT COUNT(*) FROM Roulettes WHERE user_id = ?"""
+        cursor.execute(sql_count_roulettes, (current_user_id,))
+        count_result = cursor.fetchone()
 
+        if count_result[0] == 0:
+            print("No hay ruletas disponibles para este usuario.")
+            input()
+            return None
+        
         print("Seleccionar ruleta")
         print("================================")
 
-        sql_mostrar_ruletas = """
+        sql_show_roulettes = """
         SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?
         """
 
-        cursor.execute(sql_mostrar_ruletas, (current_user_id,))
+        cursor.execute(sql_show_roulettes, (current_user_id,))
 
         results = cursor.fetchall()
 
@@ -63,6 +72,14 @@ def select_roulette(current_user_id):
                 print(f"ID: {row[0]} - Nombre: {row[1]}")
             selected_id = input("Ingrese el ID de la ruleta que desea seleccionar: ")
             id_roulette = int(selected_id)
+
+            sql_name_roulette = """SELECT name_roulette FROM Roulettes WHERE roulette_id = ? AND user_id = ?"""
+            cursor.execute(sql_name_roulette, (id_roulette, current_user_id,))
+            name_result = cursor.fetchone()
+            if name_result:
+                print(f"Ruleta seleccionada: {name_result[0]}")
+            else:
+                print("La ruleta seleccionada no existe.")
         else:
             print("No hay ruletas disponibles para este usuario.")
 
@@ -79,7 +96,7 @@ def select_roulette(current_user_id):
             conn.close()
 
     input()
-    return id_roulette
+    return id_roulette, name_result[0]
 
 def update_roulette(current_user_id):
     db_path = set_db_path()
@@ -88,14 +105,23 @@ def update_roulette(current_user_id):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
+        sql_count_roulettes = """SELECT COUNT(*) FROM Roulettes WHERE user_id = ?"""
+        cursor.execute(sql_count_roulettes, (current_user_id,))
+        count_result = cursor.fetchone()
+
+        if count_result[0] == 0:
+            print("No hay ruletas disponibles para este usuario.")
+            input()
+            return None
+
         print("Actualizar ruleta")
         print("================================")
 
-        sql_mostrar_ruletas = """
+        sql_show_roulettes = """
         SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?
         """
 
-        cursor.execute(sql_mostrar_ruletas, (current_user_id,))
+        cursor.execute(sql_show_roulettes, (current_user_id,))
 
         results = cursor.fetchall()
 
@@ -135,14 +161,23 @@ def delete_roulette(current_user_id):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
+        sql_count_roulettes = """SELECT COUNT(*) FROM Roulettes WHERE user_id = ?"""
+        cursor.execute(sql_count_roulettes, (current_user_id,))
+        count_result = cursor.fetchone()
+
+        if count_result[0] == 0:
+            print("No hay ruletas disponibles para este usuario.")
+            input()
+            return None
+
         print("Eliminar ruleta")
         print("================================")
 
-        sql_mostrar_ruletas = """
+        sql_show_roulettes = """
         SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?
         """
 
-        cursor.execute(sql_mostrar_ruletas, (current_user_id,))
+        cursor.execute(sql_show_roulettes, (current_user_id,))
 
         results = cursor.fetchall()
 

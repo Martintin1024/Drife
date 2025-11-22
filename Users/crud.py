@@ -59,7 +59,7 @@ def log_in_user():
             print(f"¡Bienvenido {user_name}!")
         else:
             current_user_id = None
-            print("Nombre de usuario o contraseña incorrectos.")
+            return current_user_id
 
     except sqlite3.Error as e:
         print(f"Error al acceder a la base de datos: '{e}'. Pulse enter para continuar.")
