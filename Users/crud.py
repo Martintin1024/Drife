@@ -56,7 +56,7 @@ def log_in_user():
         
         if result:
             current_user_id = result[0]
-            print(f"¡Bienvenido {user_name}!")
+            print(f"¡Bienvenido {user_name}, tu id es: {current_user_id}!")
         else:
             current_user_id = None
             return current_user_id

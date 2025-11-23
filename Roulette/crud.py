@@ -1,10 +1,9 @@
 import sqlite3
+import pandas as pd
 from Utilities.helpers import set_db_path
 
-db_path = "Data/roulette_data.db"
 
-
-def create_roulette(current_user_id):
+def create(current_user_id):
     db_path = set_db_path()
     conn = None
     try:
@@ -39,7 +38,7 @@ def create_roulette(current_user_id):
     input()
     return
 
-def select_roulette(current_user_id):
+def select(current_user_id):
     db_path = set_db_path()
     conn = None
     id_roulette = None
@@ -80,6 +79,7 @@ def select_roulette(current_user_id):
                 print(f"Ruleta seleccionada: {name_result[0]}")
             else:
                 print("La ruleta seleccionada no existe.")
+                return None
         else:
             print("No hay ruletas disponibles para este usuario.")
 
@@ -98,45 +98,31 @@ def select_roulette(current_user_id):
     input()
     return id_roulette, name_result[0]
 
-def update_roulette(current_user_id):
+def update(current_user_id, current_roulette_id):
     db_path = set_db_path()
     conn = None
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        sql_count_roulettes = """SELECT COUNT(*) FROM Roulettes WHERE user_id = ?"""
-        cursor.execute(sql_count_roulettes, (current_user_id,))
-        count_result = cursor.fetchone()
-
-        if count_result[0] == 0:
-            print("No hay ruletas disponibles para este usuario.")
-            input()
-            return None
-
         print("Actualizar ruleta")
         print("================================")
 
-        sql_show_roulettes = """
-        SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?
+        sql_show_current_roulette = """
+        SELECT name_roulette FROM Roulettes WHERE user_id = ? AND roulette_id = ?
         """
+        cursor.execute(sql_show_current_roulette, (current_roulette_id, current_user_id,))
+        current_roulette = cursor.fetchone()
 
-        cursor.execute(sql_show_roulettes, (current_user_id,))
-
-        results = cursor.fetchall()
-
-        if results:
-            for row in results:
-                print(f"ID: {row[0]} - Nombre: {row[1]}")
-            selected_id = input("Ingrese el ID de la ruleta que desea actualizar: ")
-            id_roulette = int(selected_id)
+        if current_roulette:
+            print(f"Nombre: {current_roulette[0]}")
             new_name = input("Ingrese el nuevo nombre para la ruleta: ")
 
             sql_actualizar_ruleta = """
             UPDATE Roulettes SET name_roulette = ? WHERE roulette_id = ? AND user_id = ?
             """
 
-            cursor.execute(sql_actualizar_ruleta, (new_name, id_roulette, current_user_id,))
+            cursor.execute(sql_actualizar_ruleta, (new_name, current_roulette_id, current_user_id,))
             conn.commit()
             print("¡Ruleta actualizada con éxito!")
         else:
@@ -150,11 +136,9 @@ def update_roulette(current_user_id):
     finally:
         if conn:
             conn.close()
-
-    input()
     return
 
-def delete_roulette(current_user_id):
+def delete(current_user_id):
     db_path = set_db_path()
     conn = None
     try:
@@ -167,7 +151,6 @@ def delete_roulette(current_user_id):
 
         if count_result[0] == 0:
             print("No hay ruletas disponibles para este usuario.")
-            input()
             return None
 
         print("Eliminar ruleta")
@@ -206,5 +189,4 @@ def delete_roulette(current_user_id):
         if conn:
             conn.close()
 
-    input()
     return

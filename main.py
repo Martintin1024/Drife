@@ -9,6 +9,7 @@ while True:
     if option == "1":
         continuing = log_in_user()
         if continuing:
+            cls()
             action_main_menu(current_user_id = continuing)
         elif continuing is None:
             cls()
