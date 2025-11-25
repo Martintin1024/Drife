@@ -14,6 +14,8 @@ def create(current_user_id):
         print(current_user_id)
         print("================================")
         name_roulette = input("¿Cual va a ser el nombre de la ruleta? ")
+        while len(name_roulette.strip()) == 0:
+            name_roulette = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de la ruleta: ")
 
         sql_create_roulette = """
         INSERT INTO Roulettes (user_id, name_roulette) VALUES (?, ?)
@@ -111,12 +113,14 @@ def update(current_user_id, current_roulette_id):
         sql_show_current_roulette = """
         SELECT name_roulette FROM Roulettes WHERE user_id = ? AND roulette_id = ?
         """
-        cursor.execute(sql_show_current_roulette, (current_roulette_id, current_user_id,))
+        cursor.execute(sql_show_current_roulette, (current_user_id, current_roulette_id,))
         current_roulette = cursor.fetchone()
 
         if current_roulette:
             print(f"Nombre: {current_roulette[0]}")
             new_name = input("Ingrese el nuevo nombre para la ruleta: ")
+            while len(new_name.strip()) == 0:
+                new_name = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de la ruleta: ")
 
             sql_actualizar_ruleta = """
             UPDATE Roulettes SET name_roulette = ? WHERE roulette_id = ? AND user_id = ?

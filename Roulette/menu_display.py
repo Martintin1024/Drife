@@ -19,7 +19,7 @@ def show_roulette_menu():
     print("1. Jugar ruleta")
     print("2. Editar ruleta")
     print("3. Eliminar ruleta")
-    print("4. Agregar opciones a la ruleta")
+    print("4. Gestionar opciones de la ruleta")
     print("0. Volver al menú principal")
     option = input("Opcion: ")
     try:

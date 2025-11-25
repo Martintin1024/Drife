@@ -12,6 +12,8 @@ def create(current_roulette_id, name_roulette):
         print(f"Creando opciones para la ruleta '{name_roulette}'...")
         print("================================")
         option_name = input("¿Cual va a ser el nombre de la opción? ")
+        while len(option_name.strip()) == 0:
+            option_name = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de la opción: ")
 
         sql_create_option = """
         INSERT INTO Options (roulette_id, option_name) VALUES (?, ?)
@@ -39,18 +41,19 @@ def create(current_roulette_id, name_roulette):
 def view(current_roulette_id, name_roulette):
     db_path = set_db_path()
     conn = None
+    print   (f"El id de la ruleta es: {current_roulette_id}")
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         print(f"Viendo opciones de la ruleta '{name_roulette}'...")
         print("================================")
+        
         sql_show_options = """
-        Select * from Options WHERE roulette_id = ?
+        SELECT option_id, option_name FROM Options WHERE roulette_id = ?
         """
 
         cursor.execute(sql_show_options, (current_roulette_id,))
-
         results = cursor.fetchall()
         
         if results:
@@ -88,7 +91,7 @@ def update_name(current_roulette_id, name_roulette):
         if sql_count_options > 0:
 
             sql_show_options = """
-            SELECT * from Options WHERE roulette_id = ?
+            SELECT option_id, option_name from Options WHERE roulette_id = ?
             """
             cursor.execute(sql_show_options, (current_roulette_id,))
             results = cursor.fetchall()
@@ -104,7 +107,11 @@ def update_name(current_roulette_id, name_roulette):
         print(f"Modificando opción de la ruleta '{name_roulette}'...")
         print("================================")
         option_id = input("Ingrese el ID de la opción que desea modificar: ")
+        while len(option_id.strip()) == 0:
+            option_id = input("No se puede ingresar un id vacío. Por favor, ingrese el id de la opción: ")
         new_option_name = input("Ingrese el nuevo nombre para la opción: ")
+        while len(new_option_name.strip()) == 0:
+            new_option_name = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de la opción: ")
 
         sql_modify_option = """
         UPDATE Options SET option_name = ? WHERE option_id = ? AND roulette_id = ?
@@ -146,7 +153,7 @@ def delete(current_roulette_id, name_roulette):
         if int(sql_count_options) > 0:
 
             sql_show_options = """
-            Select * from Options WHERE roulette_id = ?
+            Select option_id, option_name from Options WHERE roulette_id = ?
             """
             cursor.execute(sql_show_options, (current_roulette_id,))
             results = cursor.fetchall()
@@ -162,6 +169,8 @@ def delete(current_roulette_id, name_roulette):
         print(f"Borrando opción de la ruleta '{name_roulette}'...")
         print("================================")
         option_id = input("Ingrese el ID de la opción que desea borrar: ")
+        while len(option_id.strip()) == 0:
+            option_id = input("No se puede ingresar un id vacío. Por favor, ingrese el id de la opción: ")
 
         sql_delete_option = """
         DELETE FROM Options WHERE option_id = ? AND roulette_id = ?

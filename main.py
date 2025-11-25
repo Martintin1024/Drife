@@ -16,8 +16,6 @@ while True:
             input("Inicio de sesión fallido. Intente de nuevo.")
     elif option == "2":
         register_new_user()
-        if continuing:
-            print("Registro completado. Ahora puede iniciar sesión.")
     elif option == "0":
         break
     cls()

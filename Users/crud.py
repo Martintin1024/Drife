@@ -12,10 +12,11 @@ def register_new_user():
         print("REGISTRO DE NUEVO USUARIO")
         print("================================")
         user_name = input("NOMBRE DE USUARIO: ")
+        while len(user_name.strip()) == 0:
+            user_name = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de usuario: ")
         pass_word = gp.getpass("CONTRASEÑA: ")
-        if (not pass_word) or (not user_name):
-            input("El nombre de usuario no puede estar vacío. Pulse enter para continuar.")
-            return False
+        while len(pass_word.strip()) == 0:
+            pass_word = input("No se puede ingresar una contraseña vacío. Por favor, ingrese la contraseña de vuelta: ")
 
         sql_insertar = "INSERT INTO Users (user_name, password) VALUES (?, ?)"
         cursor.execute(sql_insertar, (user_name, pass_word))
@@ -56,7 +57,7 @@ def log_in_user():
         
         if result:
             current_user_id = result[0]
-            print(f"¡Bienvenido {user_name}, tu id es: {current_user_id}!")
+            print(f"¡Bienvenido {user_name}!")
         else:
             current_user_id = None
             return current_user_id
@@ -83,6 +84,8 @@ def update_user_password(current_user_id):
         print("ACTUALIZAR CONTRASEÑA")
         print("================================")
         new_password = gp.getpass("NUEVA CONTRASEÑA: ")
+        while len(new_password.strip()) == 0:
+            new_password = input("No se puede ingresar una contraseña vacío. Por favor, ingrese la contraseña de vuelta: ")
         confirm_password = gp.getpass("CONFIRMAR CONTRASEÑA: ")
 
         if new_password != confirm_password:
@@ -117,6 +120,8 @@ def update_user_name(current_user_id):
         print("ACTUALIZAR NOMBRE DE USUARIO")
         print("================================")
         new_user_name = input("NUEVO NOMBRE DE USUARIO: ")
+        while len(new_user_name.strip()) == 0:
+            new_user_name = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de usuario: ")
 
         sql_actualizar = "UPDATE Users SET user_name = ? WHERE user_id = ?"
         cursor.execute(sql_actualizar, (new_user_name, current_user_id))
