@@ -2,6 +2,7 @@ from Roulette.menu_display import show_main_menu, show_roulette_menu
 from Roulette.crud import create, select, update, delete
 from Utilities.helpers import cls
 from Roulette.Options.action_menu import action_crud_menu
+from Roulette.Gameplay.play import spin_roulette
 
 def action_main_menu(current_user_id = None):
     while True:
@@ -35,7 +36,7 @@ def action_menu(current_user_id, current_roulette_id, current_roulette_name):
             return
         
         elif opcion == "1":
-            print("Aca tendrias la opcion de jugar la ruleta")
+            spin_roulette(current_roulette_id, current_roulette_name)
         
         elif opcion == "2":
             update(current_user_id, current_roulette_id)
