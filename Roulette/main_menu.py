@@ -1,71 +1,126 @@
 import flet as ft
 from Roulette.crud import create_roulette_db, get_user_roulettes, delete_roulette_db
 
-primary_color = "#ED223F"
-secondary_color = "#CC9038"
+# Colores globales
+PRIMARY_COLOR = "#ED223F"
+SECONDARY_COLOR = "#CC9038"
 
-def vista_dashboard(page: ft.Page, user_id, on_logout):
+def view_dashboard(page: ft.Page, user_id, on_logout):
     page.clean()
     page.vertical_alignment = ft.MainAxisAlignment.START 
     
-    # --- Lógica interna del dashboard ---
-    def borrar_ruleta(e, rid):
-        delete_roulette_db(user_id, rid)
-        recargar_lista() # Recargamos solo la lista interna
+    # ---------------------------------------------------------
+    # 1. DEFINICIÓN DE LA LISTA (Usamos ListView)
+    # ---------------------------------------------------------
+    roulette_list = ft.ListView(expand=True, spacing=10, padding=20)
 
-    def crear_ruleta(e, nombre, dialogo):
+    # ---------------------------------------------------------
+    # 2. LÓGICA
+    # ---------------------------------------------------------
+    
+    def delete_roulette(e, rid):
+        delete_roulette_db(user_id, rid)
+        recharge_list()
+
+    def create_roulette(e, nombre, dialogo):
         if nombre:
             create_roulette_db(user_id, nombre)
             page.close(dialogo)
-            recargar_lista()
+            recharge_list()
 
-    # --- UI Helpers ---
-    def recargar_lista():
-        # Truco: Limpiamos la lista y la volvemos a llenar
-        columna_lista.controls.clear()
+    def recharge_list():
+        roulette_list.controls.clear()
+        
         datos = get_user_roulettes(user_id)
         
         if not datos:
-            columna_lista.controls.append(ft.Text("No tienes ruletas aún.", color="grey"))
+            roulette_list.controls.append(
+                ft.Text("No tienes ruletas creadas.", color="grey", text_align="center")
+            )
         else:
             for r_id, r_nombre in datos:
-                item = ft.Container(
-                    content=ft.Row([
-                        ft.Icon("donut_large", color=secondary_color),
-                        ft.Text(r_nombre, size=16, weight="bold", expand=True),
-                        ft.IconButton(icon=ft.Icons.PLAY_ARROW, icon_color="green"),
-                        ft.IconButton(icon=ft.Icons.DELETE, icon_color="red", 
-                            on_click=lambda e, x=r_id: borrar_ruleta(e, x))
-                    ]),
-                    padding=10, border=ft.border.all(1, "grey"), border_radius=10,
-                    bgcolor=ft.colors.with_opacity(0.1, "white")
+                
+                # --- CORRECCIÓN AQUÍ ---
+                # Usamos 'icon' (parametro) con el string directo "play_arrow".
+                # Sin 'content', sin 'ft.icons.ALGO'. Solo texto.
+                btn_play = ft.IconButton(
+                    icon="play_arrow",  
+                    icon_color="green",
+                    tooltip="Jugar"
                 )
-                columna_lista.controls.append(item)
+                
+                btn_delete = ft.IconButton(
+                    icon="delete",
+                    icon_color="red",
+                    on_click=lambda e, x=r_id: delete_roulette(e, x),
+                    tooltip="Borrar"
+                )
+
+                # Usamos Card y ListTile para un diseño limpio
+                item = ft.Card(
+                    color="#252525", 
+                    content=ft.ListTile(
+                        # Para el icono principal también usamos texto directo en ft.Icon
+                        leading=ft.Icon("donut_large", color=SECONDARY_COLOR),
+                        title=ft.Text(r_nombre, color="white", weight="bold"),
+                        trailing=ft.Row([btn_play, btn_delete], alignment=ft.MainAxisAlignment.END, width=100)
+                    )
+                )
+                roulette_list.controls.append(item)
+        
         page.update()
 
-    # Contenedor de la lista
-    columna_lista = ft.Column(scroll=ft.ScrollMode.AUTO, height=400)
+    # ---------------------------------------------------------
+    # 3. UI EXTRAS (Diálogos y Botones)
+    # ---------------------------------------------------------
     
-    # Diálogo Crear
-    campo_nombre = ft.TextField(label="Nombre")
-    dialogo = ft.AlertDialog(
-        title=ft.Text("Nueva Ruleta"), content=campo_nombre,
-        actions=[ft.TextButton("Crear", on_click=lambda e: crear_ruleta(e, campo_nombre.value, dialogo))]
+    name_field = ft.TextField(label="Nombre de la ruleta")
+    dialog = ft.AlertDialog(
+        title=ft.Text("Nueva Ruleta"), 
+        content=name_field,
+        actions=[
+            ft.TextButton("Cancelar", on_click=lambda e: page.close(dialog)),
+            ft.TextButton("Crear", on_click=lambda e: create_roulette(e, name_field.value, dialog))
+        ]
     )
 
-    # --- Dibujamos la pantalla ---
+    # ---------------------------------------------------------
+    # 4. ARMADO DE LA PANTALLA
+    # ---------------------------------------------------------
+    
+    # Encabezado
+    header = ft.Container(
+        content=ft.Column([
+            ft.Row([
+                ft.Text("Mis Ruletas", size=25, weight="bold", color=PRIMARY_COLOR),
+                ft.IconButton(
+                    icon="logout", # Icono directo
+                    icon_color="white",
+                    on_click=lambda e: on_logout()
+                )
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+            ft.Divider(color=SECONDARY_COLOR),
+        ]),
+        padding=10
+    )
+
+    # Botón de crear (Este es un ElevatedButton, ese sí soporta content)
+    create_btn = ft.Container(
+        content=ft.ElevatedButton(
+            content=ft.Row([ft.Icon("add", color="white"), ft.Text("Crear Nueva", color="white")]),
+            bgcolor=PRIMARY_COLOR,
+            width=300,
+            on_click=lambda e: page.open(dialog)
+        ),
+        padding=10,
+        alignment="center"
+    )
+
+    # Agregamos todo
     page.add(
-        ft.Row([
-            ft.Text("Mis Ruletas", size=25, weight="bold", color=primary_color),
-            # Al hacer click en salir, llamamos a la función que nos pasó el Main
-            ft.IconButton(icon=ft.Icons.LOGOUT, on_click=lambda e: on_logout()) 
-        ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-        ft.Divider(color=secondary_color),
-        columna_lista,
-        ft.Container(height=20),
-        ft.ElevatedButton("Crear Nueva", icon=ft.Icons.ADD, bgcolor=primary_color, color="white", width=300,
-            on_click=lambda e: page.open(dialogo))
+        header,
+        roulette_list, 
+        create_btn,
     )
     
-    # Carga inicial de datos
-    recargar_lista()
+    recharge_list()

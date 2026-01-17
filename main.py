@@ -1,7 +1,7 @@
 import flet as ft
 # Importamos las vistas desde sus carpetas
-from Users.login_menu import vista_login
-from Roulette.main_menu import vista_dashboard
+from Users.login_menu import view_login
+from Roulette.main_menu import view_dashboard
 
 def main(page: ft.Page):
     # Configuración Global
@@ -12,17 +12,17 @@ def main(page: ft.Page):
     
     # --- SISTEMA DE NAVEGACIÓN ---
     
-    def ir_a_login():
+    def go_to_login():
         # Llamamos a la vista de login y le pasamos la función "ir_a_dashboard"
         # para que sepa qué hacer cuando el login sea exitoso.
-        vista_login(page, on_login_success=ir_a_dashboard)
+        view_login(page, on_login_success=go_to_dashboard)
 
-    def ir_a_dashboard(user_id):
+    def go_to_dashboard(user_id):
         # Llamamos al dashboard y le pasamos la función "ir_a_login"
         # para que sepa qué hacer cuando cierren sesión.
-        vista_dashboard(page, user_id, on_logout=ir_a_login)
+        view_dashboard(page, user_id, on_logout=go_to_login)
 
     # Arrancamos la app yendo al login
-    ir_a_login()
+    go_to_login()
 
 ft.app(main)

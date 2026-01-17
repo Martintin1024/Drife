@@ -5,7 +5,7 @@ from Users.crud import log_in_user, register_new_user
 primary_color = "#ED223F"
 text_color = "#dddddd"
 
-def vista_login(page: ft.Page, on_login_success):
+def view_login(page: ft.Page, on_login_success):
     """
     Pinta la pantalla de login.
     on_login_success: Es una función que el Main nos pasa para que la ejecutemos cuando el usuario entre.
@@ -16,7 +16,7 @@ def vista_login(page: ft.Page, on_login_success):
     txt_pass = ft.TextField(label="Contraseña", width=280, password=True, can_reveal_password=True, icon=ft.Icons.LOCK)
     lbl_mensaje = ft.Text(color="red")
     
-    boton_login = ft.ElevatedButton(
+    login_button = ft.ElevatedButton(
         content=ft.Text("Iniciar Sesión", color=text_color), 
         bgcolor=primary_color, 
         width=280, 
@@ -24,15 +24,15 @@ def vista_login(page: ft.Page, on_login_success):
     )
 
     # Validaciones internas (lógica visual)
-    def validar_campos(e):
-        boton_login.disabled = not (txt_user.value and txt_pass.value)
-        boton_login.update()
+    def validate_fields(e):
+        login_button.disabled = not (txt_user.value and txt_pass.value)
+        login_button.update()
 
-    txt_user.on_change = validar_campos
-    txt_pass.on_change = validar_campos
+    txt_user.on_change = validate_fields
+    txt_pass.on_change = validate_fields
 
     # Lógica de Login
-    def evento_login(user_id):
+    def login_event(user_id):
         user_id = log_in_user(txt_user.value, txt_pass.value)
         if user_id:
             # ¡EXITO! Aquí no cambiamos de pantalla nosotros.
@@ -45,14 +45,14 @@ def vista_login(page: ft.Page, on_login_success):
             lbl_mensaje.value = "Datos incorrectos"
             page.update()
 
-    def evento_registro(e):
+    def register_event(e):
         exito, msg = register_new_user(txt_user.value, txt_pass.value)
         lbl_mensaje.value = msg
         lbl_mensaje.color = "green" if exito else "red"
         page.update()
 
     # Botón Login
-    boton_login.on_click = evento_login
+    login_button.on_click = login_event
 
     # Dibujamos
     page.add(
@@ -60,12 +60,12 @@ def vista_login(page: ft.Page, on_login_success):
             ft.Text("Bienvenido a Drife", size=30, weight="bold", color=primary_color),
             ft.Divider(color="#CC9038", thickness=2),
             txt_user, txt_pass, lbl_mensaje,
-            boton_login,
+            login_button,
             ft.OutlinedButton(
                 content=ft.Text("Registrarse", color=primary_color),
                 style=ft.ButtonStyle(side={ft.ControlState.DEFAULT: ft.BorderSide(2, primary_color)}),
                 width=280,
-                on_click=evento_registro
+                on_click=register_event
             ),
         ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
     )
