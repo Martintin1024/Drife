@@ -1,57 +1,196 @@
 import sqlite3
+import pandas as pd
 from Utilities.helpers import set_db_path
 
-def create_roulette_db(user_id, name_roulette):
-    """Crea una ruleta y devuelve (True, Mensaje) o (False, Error)"""
+
+def create(current_user_id):
     db_path = set_db_path()
     conn = None
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        sql_create = "INSERT INTO Roulettes (user_id, name_roulette) VALUES (?, ?)"
-        cursor.execute(sql_create, (user_id, name_roulette))
+        print("Creando tabla de ruletas...")
+        print(current_user_id)
+        print("================================")
+        name_roulette = input("¿Cual va a ser el nombre de la ruleta? ")
+        while len(name_roulette.strip()) == 0:
+            name_roulette = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de la ruleta: ")
+
+        sql_create_roulette = """
+        INSERT INTO Roulettes (user_id, name_roulette) VALUES (?, ?)
+        """
+
+        cursor.execute(sql_create_roulette, (current_user_id, name_roulette,))
         conn.commit()
-        return True, "Ruleta creada con éxito"
 
     except sqlite3.Error as e:
-        return False, f"Error SQL: {e}"
-    finally:
-        if conn: conn.close()
+        print(f"Error al crear la ruleta: {e}")
+        if conn:
+            conn.rollback()
 
-def get_user_roulettes(user_id):
-    """Devuelve una lista de tuplas [(id, nombre), (id, nombre)...]"""
+    else:
+        print("¡La ruleta fue creada con éxito!")
+
+    finally:
+        if conn:
+            conn.close()
+            print("Saliendo de la base de datos")
+
+    input()
+    return
+
+def select(current_user_id):
     db_path = set_db_path()
     conn = None
+    id_roulette = None
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         
-        sql = "SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?"
-        cursor.execute(sql, (user_id,))
+        sql_count_roulettes = """SELECT COUNT(*) FROM Roulettes WHERE user_id = ?"""
+        cursor.execute(sql_count_roulettes, (current_user_id,))
+        count_result = cursor.fetchone()
+
+        if count_result[0] == 0:
+            print("No hay ruletas disponibles para este usuario.")
+            input()
+            return None
+        
+        print("Seleccionar ruleta")
+        print("================================")
+
+        sql_show_roulettes = """
+        SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?
+        """
+
+        cursor.execute(sql_show_roulettes, (current_user_id,))
+
         results = cursor.fetchall()
-        return results # Retorna la lista (puede estar vacía)
 
-    except sqlite3.Error:
-        return []
+        if results:
+            for row in results:
+                print(f"ID: {row[0]} - Nombre: {row[1]}")
+            selected_id = input("Ingrese el ID de la ruleta que desea seleccionar: ")
+            id_roulette = int(selected_id)
+
+            sql_name_roulette = """SELECT name_roulette FROM Roulettes WHERE roulette_id = ? AND user_id = ?"""
+            cursor.execute(sql_name_roulette, (id_roulette, current_user_id,))
+            name_result = cursor.fetchone()
+            if name_result:
+                print(f"Ruleta seleccionada: {name_result[0]}")
+            else:
+                print("La ruleta seleccionada no existe.")
+                return None
+        else:
+            print("No hay ruletas disponibles para este usuario.")
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        if conn:
+            conn.rollback()
+
+    else:
+        print("¡Ruleta seleccionada con éxito!")
+
     finally:
-        if conn: conn.close()
+        if conn:
+            conn.close()
 
-def delete_roulette_db(user_id, roulette_id):
-    """Borra una ruleta específica"""
+    input()
+    return id_roulette, name_result[0]
+
+def update(current_user_id, current_roulette_id):
     db_path = set_db_path()
     conn = None
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        
-        sql = "DELETE FROM Roulettes WHERE roulette_id = ? AND user_id = ?"
-        cursor.execute(sql, (roulette_id, user_id))
-        conn.commit()
-        return True
-    except sqlite3.Error:
-        return False
-    finally:
-        if conn: conn.close()
 
-# Dejamos update y options para la próxima etapa
+        print("Actualizar ruleta")
+        print("================================")
+
+        sql_show_current_roulette = """
+        SELECT name_roulette FROM Roulettes WHERE user_id = ? AND roulette_id = ?
+        """
+        cursor.execute(sql_show_current_roulette, (current_user_id, current_roulette_id,))
+        current_roulette = cursor.fetchone()
+
+        if current_roulette:
+            print(f"Nombre: {current_roulette[0]}")
+            new_name = input("Ingrese el nuevo nombre para la ruleta: ")
+            while len(new_name.strip()) == 0:
+                new_name = input("No se puede ingresar un nombre vacío. Por favor, ingrese el nombre de la ruleta: ")
+
+            sql_actualizar_ruleta = """
+            UPDATE Roulettes SET name_roulette = ? WHERE roulette_id = ? AND user_id = ?
+            """
+
+            cursor.execute(sql_actualizar_ruleta, (new_name, current_roulette_id, current_user_id,))
+            conn.commit()
+            print("¡Ruleta actualizada con éxito!")
+        else:
+            print("No hay ruletas disponibles para este usuario.")
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        if conn:
+            conn.rollback()
+
+    finally:
+        if conn:
+            conn.close()
+    return
+
+def delete(current_user_id):
+    db_path = set_db_path()
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        sql_count_roulettes = """SELECT COUNT(*) FROM Roulettes WHERE user_id = ?"""
+        cursor.execute(sql_count_roulettes, (current_user_id,))
+        count_result = cursor.fetchone()
+
+        if count_result[0] == 0:
+            print("No hay ruletas disponibles para este usuario.")
+            return None
+
+        print("Eliminar ruleta")
+        print("================================")
+
+        sql_show_roulettes = """
+        SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?
+        """
+
+        cursor.execute(sql_show_roulettes, (current_user_id,))
+
+        results = cursor.fetchall()
+
+        if results:
+            for row in results:
+                print(f"ID: {row[0]} - Nombre: {row[1]}")
+            selected_id = input("Ingrese el ID de la ruleta que desea eliminar: ")
+            id_roulette = int(selected_id)
+
+            sql_eliminar_ruleta = """
+            DELETE FROM Roulettes WHERE roulette_id = ? AND user_id = ?
+            """
+
+            cursor.execute(sql_eliminar_ruleta, (id_roulette, current_user_id,))
+            conn.commit()
+            print("¡Ruleta eliminada con éxito!")
+        else:
+            print("No hay ruletas disponibles para este usuario.")
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        if conn:
+            conn.rollback()
+
+    finally:
+        if conn:
+            conn.close()
+
+    return
