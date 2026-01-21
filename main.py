@@ -1,5 +1,4 @@
 import flet as ft
-# Importamos las vistas desde sus carpetas
 from Users.login_menu import view_login
 from Roulette.main_menu import view_dashboard
 
