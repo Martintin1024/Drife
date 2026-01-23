@@ -21,23 +21,60 @@ def view_dashboard(page: ft.Page, user_id, on_logout):
         roulettes_list = get_user_roulettes(user_id) # Devuelve [(id, nombre), ...]
 
         # 2. Creamos una tarjeta por cada ruleta existente
-        for r_id, r_name in roulettes_list:
-            card = ft.Container(
-                content=ft.Column(
-                    [
-                        # Icono de ruleta (puedes cambiarlo por una imagen luego)
-                        ft.Icon(ft.Icons.PIE_CHART, size=50, color=ft.Colors.PRIMARY),
-                        ft.Text(value=r_name, size=16, weight=ft.FontWeight.BOLD, text_align="center", color="#CC9038")
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        
+        def create_new_card(r_name):
+            options_overlay = ft.Container(
+                content=ft.PopupMenuButton(
+                    icon=ft.Icons.MORE_VERT,
+                    icon_color="#ffffff",
+                    tooltip="Opciones",
+                    items=[
+                        ft.PopupMenuItem("Editar", on_click=lambda _: print(f"Editar {r_name}")),
+                        ft.PopupMenuItem("Eliminar", on_click=lambda _: print(f"Eliminar {r_name}")),
+                    ]
                 ),
-                bgcolor="#720F1E", # Color oscuro estándar de Flet
-                border_radius=20,
-                padding=15,
-                alignment=ft.Alignment.CENTER,
-                on_click=lambda e, x=r_name: print(f"Abrir ruleta: {x}") # Aquí conectarás la vista de juego
+                top=5,
+                right=5,
+                opacity=0,            # Comienza invisible
+                animate_opacity=200,  # Animación suave de 200ms
             )
+
+            # 2. Definimos la lógica del hover localmente
+            def on_hover_card(e):
+                # Si el mouse entra (true), opacidad 1. Si sale, opacidad 0.
+                options_overlay.opacity = 1 if e.data == "true" else 0
+                options_overlay.update()
+
+# 3. Creamos la tarjeta final (Stack dentro de un Container detector)
+            return ft.Container(
+                content=ft.Stack(
+                    controls=[
+                        # --- TU DISEÑO ORIGINAL (FONDO) ---
+                        ft.Container(
+                            content=ft.Column(
+                                [
+                                    ft.Icon(ft.Icons.PIE_CHART, size=50, color=ft.Colors.PRIMARY),
+                                    ft.Text(value=r_name, size=16, weight=ft.FontWeight.BOLD, text_align="center", color="#CC9038")
+                                ],
+                                alignment=ft.MainAxisAlignment.CENTER,
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                            ),
+                            bgcolor="#720F1E",
+                            border_radius=20,
+                            padding=15,
+                            alignment=ft.Alignment.CENTER,
+                            on_click=lambda e, x=r_name: print(f"Abrir ruleta: {x}")
+                        ),
+                        # --- CAPA DE OPCIONES ---
+                        options_overlay
+                    ]
+                ),
+                on_hover=on_hover_card, # Aquí activamos la magia
+                border_radius=20,       # Mismo radio que tu tarjeta para que el hover coincida bien
+        )
+        for r_id, r_name in roulettes_list:
+
+            card = create_new_card(r_name)
             items_grid.append(card)
 
         # 3. Agregamos al final la tarjeta de "NUEVA RULETA"
