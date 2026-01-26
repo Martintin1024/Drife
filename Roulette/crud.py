@@ -54,4 +54,19 @@ def delete_roulette_db(user_id, roulette_id):
     finally:
         if conn: conn.close()
 
-# Dejamos update y options para la próxima etapa
+def update_roulette_db(user_id, roulette_id, new_name):
+    db_path = set_db_path()
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        sql = "UPDATE Roulettes SET name_roulette = ? WHERE roulette_id = ? AND user_id = ?"
+        cursor.execute(sql, (new_name, roulette_id, user_id))
+        conn.commit()
+        return True, "Nombre actualizado correctamente"
+        
+    except sqlite3.Error as e:
+        return False, f"Error SQL: {e}"
+    finally:
+        if conn: conn.close()

@@ -4,7 +4,7 @@ from Roulette.main_menu import view_dashboard
 
 def main(page: ft.Page):
     # Configuración Global
-    page.title = "Drife App"
+    page.title = "Drife"
     page.theme_mode = ft.ThemeMode.DARK
     page.window_width = 400
     page.window_height = 700
