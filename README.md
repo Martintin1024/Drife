@@ -30,3 +30,25 @@ El proyecto se encuentra en etapa **Pre-Alpha**. Actualmente, se está terminand
 - [ ] Funcionamiento de las 3 formas de ruletas
 - [ ] Interfaz gráfica de usuario
 - [ ] Release v0.1 (MVP)
+
+## ⛃ Base de Datos
+La base de datos utiliza SQLite y está normalizada en 3FN para asegurar la integridad de las ruletas con sus respectivas opciones determinadas por los usuarios.
+
+
+    User {
+        int user_id PK
+        string user_name
+        string password
+    }
+
+    Roulette {
+        int roulette_id PK
+        int user_id FK
+        string name_roulette
+    }
+
+    Option {
+        int option_id PK
+        int roulette_id FK
+        string option_name
+    }
