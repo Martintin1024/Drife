@@ -1,22 +1,28 @@
 import flet as ft
+from Roulette.Options.crud import get_roulette_items_text
 from Roulette.crud import delete_roulette_db, update_roulette_db
+from Utilities.helpers import get_visual_roulette
 
 def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
     page.clean()
     page.title = f"Drife"
     page.bgcolor = "#1a1a1a"
     
+    # 1. Recuperamos los datos para pintar la ruleta grande
+    items_actuales = get_roulette_items_text(r_id)
+    
     title_ref = ft.Ref()
 
+    # ... (Funciones close_dlg, open_dlg, confirm_delete, confirm_rename SIGUEN IGUAL) ...
+    
+    # --- CÓDIGO DE DIÁLOGOS (Resumido, déjalo igual que antes) ---
     def close_dlg(dlg):
         dlg.open = False
         page.update()
-
     def open_dlg(dlg):
         page.dialog = dlg
         dlg.open = True
         page.update()
-
     def confirm_delete(e):
         success, msg = delete_roulette_db(user_id, r_id)
         if success:
@@ -25,7 +31,6 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
             on_back() 
         else:
             page.show_snack_bar(ft.SnackBar(ft.Text(f"Error: {msg}")))
-
     delete_dialog = ft.AlertDialog(
         title=ft.Text("¿Eliminar Ruleta?"),
         content=ft.Text("Se borrará para siempre. ¿Estás seguro?"),
@@ -34,23 +39,18 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
             ft.TextButton("Sí, Eliminar", on_click=confirm_delete, style=ft.ButtonStyle(color="#ff0000")),
         ],
     )
-
-    # --- RENOMBRAR ---
     txt_rename = ft.TextField(label="Nuevo nombre", value=r_name, color="#ffffff", border_color="#cc9038")
-    
     def confirm_rename(e):
         new_val = txt_rename.value.strip()
         if new_val:
             success, msg = update_roulette_db(user_id, r_id, new_val)
             if success:
-                # Actualización Visual
                 title_ref.current.value = new_val 
                 close_dlg(rename_dialog)
                 page.update()
                 page.show_snack_bar(ft.SnackBar(ft.Text("Nombre actualizado")))
             else:
                 page.show_snack_bar(ft.SnackBar(ft.Text(f"Error: {msg}")))
-
     rename_dialog = ft.AlertDialog(
         title=ft.Text("Renombrar Ruleta"),
         content=txt_rename,
@@ -78,14 +78,18 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
         ]
     )
 
+    # 3. AQUÍ HACEMOS LA MAGIA VISUAL
+    # Generamos la ruleta grande (Size 150 o más)
+    visual_grande = get_visual_roulette(items_actuales, size=150)
+
     title_display = ft.Column(
         [
-            ft.Icon(ft.Icons.PIE_CHART, size=80, color="#6193B4"),
+            visual_grande, # <--- Reemplazamos el Icon estático por esto
             
-            # --- USO DE LA REFERENCIA ---
-            # Le decimos a este Text que él es el "title_ref"
+            ft.Container(height=10), # Un poco de aire
+            
             ft.Text(
-                ref=title_ref,  # <--- Aquí conectamos la referencia
+                ref=title_ref,
                 value=r_name, 
                 size=40, 
                 weight=ft.FontWeight.BOLD, 
@@ -99,7 +103,7 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
     btn_play = ft.Container(
         content=ft.Row(
             [
-                ft.Icon(ft.Icons.PLAY_ARROW_ROUNDED, size=60, color="#ffffff"),
+                ft.Icon(ft.Icons.PLAY_ARROW, size=60, color="#ffffff"),
                 ft.Text("JUGAR", size=30, weight="bold", color="#ffffff")
             ], 
             alignment=ft.MainAxisAlignment.CENTER
@@ -109,7 +113,6 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
         border_radius=20,
         alignment=ft.Alignment.CENTER,
         ink=True,
-        # Al jugar, leemos el nombre actual directamente desde la referencia del título
         on_click=lambda e: print(f"Jugar ruleta: {title_ref.current.value}") 
     )
 
