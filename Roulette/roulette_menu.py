@@ -2,164 +2,127 @@ import flet as ft
 from Roulette.Options.crud import get_roulette_items_text
 from Roulette.crud import delete_roulette_db, update_roulette_db
 from Utilities.helpers import get_visual_roulette
+# --- IMPORTAMOS LA LÓGICA DEL JUEGO ---
+from Roulette.Gameplay.play import view_play_roulette 
 
 def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
     page.clean()
-    page.title = f"Drife"
-    page.bgcolor = "#1a1a1a"
+    page.title = f"Configuración: {r_name}"
+    page.bgcolor = "#1a1a1a" # Gris oscuro estilo dashboard
     
-    # 1. Recuperamos los datos para pintar la ruleta grande
+    # Variables de estado
     items_actuales = get_roulette_items_text(r_id)
-    
     title_ref = ft.Ref()
+    preview_ref = ft.Ref()
 
-    # ... (Funciones close_dlg, open_dlg, confirm_delete, confirm_rename SIGUEN IGUAL) ...
-    
-    # --- CÓDIGO DE DIÁLOGOS (Resumido, déjalo igual que antes) ---
+    # --- NAVEGACIÓN AL JUEGO ---
+    def go_to_play(e):
+        view_play_roulette(
+            page, user_id, r_id, r_name, 
+            # Cuando volvamos del juego, regresamos a ESTE menú de configuración
+            on_back=lambda: view_roulette_details(page, user_id, r_id, r_name, on_back)
+        )
+
+    # --- DIÁLOGOS (Borrar / Renombrar) ---
     def close_dlg(dlg):
         dlg.open = False
         page.update()
-    def open_dlg(dlg):
-        page.dialog = dlg
-        dlg.open = True
-        page.update()
+
     def confirm_delete(e):
-        success, msg = delete_roulette_db(user_id, r_id)
-        if success:
-            page.close_dialog()
-            page.show_snack_bar(ft.SnackBar(ft.Text("Ruleta eliminada")))
-            on_back() 
-        else:
-            page.show_snack_bar(ft.SnackBar(ft.Text(f"Error: {msg}")))
+        delete_roulette_db(user_id, r_id)
+        on_back() # Volver al dashboard principal
+
     delete_dialog = ft.AlertDialog(
-        title=ft.Text("¿Eliminar Ruleta?"),
-        content=ft.Text("Se borrará para siempre. ¿Estás seguro?"),
+        title=ft.Text("¿Eliminar esta ruleta?"),
+        content=ft.Text("Esta acción no se puede deshacer."),
         actions=[
-            ft.TextButton("Cancelar", on_click=lambda e: page.close_dialog()),
-            ft.TextButton("Sí, Eliminar", on_click=confirm_delete, style=ft.ButtonStyle(color="#ff0000")),
+            ft.TextButton("Cancelar", on_click=lambda e: close_dlg(delete_dialog)),
+            ft.TextButton("Eliminar", on_click=confirm_delete, style=ft.ButtonStyle(color="#ff0000")),
         ],
     )
-    txt_rename = ft.TextField(label="Nuevo nombre", value=r_name, color="#ffffff", border_color="#cc9038")
+
+    txt_rename = ft.TextField(label="Nuevo nombre", value=r_name, border_color="#cc9038")
     def confirm_rename(e):
-        new_val = txt_rename.value.strip()
-        if new_val:
-            success, msg = update_roulette_db(user_id, r_id, new_val)
-            if success:
-                title_ref.current.value = new_val 
-                close_dlg(rename_dialog)
-                page.update()
-                page.show_snack_bar(ft.SnackBar(ft.Text("Nombre actualizado")))
-            else:
-                page.show_snack_bar(ft.SnackBar(ft.Text(f"Error: {msg}")))
+        if txt_rename.value:
+            update_roulette_db(user_id, r_id, txt_rename.value)
+            title_ref.current.value = txt_rename.value
+            close_dlg(rename_dialog)
+            page.update()
+
     rename_dialog = ft.AlertDialog(
-        title=ft.Text("Renombrar Ruleta"),
         content=txt_rename,
-        actions=[
-            ft.TextButton("Cancelar", on_click=lambda e: close_dlg(rename_dialog)),
-            ft.ElevatedButton("Guardar", on_click=confirm_rename, bgcolor="#00ff00", color="#ffffff"),
-        ],
+        actions=[ft.ElevatedButton("Guardar", on_click=confirm_rename)],
     )
 
-    # ---------------------------------------------------------
-    # 2. DISEÑO VISUAL
-    # ---------------------------------------------------------
+    # --- UI DEL MENÚ ---
+    
+    # Header
+    header = ft.Row([
+        ft.IconButton(ft.Icons.ARROW_BACK, icon_color="#ffffff", on_click=lambda e: on_back()),
+        ft.Text("Volver", color="#cccccc")
+    ])
 
-    header = ft.Row(
-        [
-            ft.IconButton(
-                icon=ft.Icons.ARROW_BACK, 
-                icon_color="#aaaaaa", 
-                icon_size=30,
-                tooltip="Volver",
-                on_click=lambda e: on_back()
-            ),
-            ft.Container(width=10),
-            ft.Text("Volver al menú", color="#aaaaaa", size=16)
-        ]
-    )
+    # Título
+    lbl_title = ft.Text(ref=title_ref, value=r_name, size=40, color="#ffffff", weight="bold")
 
-    # 3. AQUÍ HACEMOS LA MAGIA VISUAL
-    # Generamos la ruleta grande (Size 150 o más)
-    visual_grande = get_visual_roulette(items_actuales, size=150)
-
-    title_display = ft.Column(
-        [
-            visual_grande, # <--- Reemplazamos el Icon estático por esto
-            
-            ft.Container(height=10), # Un poco de aire
-            
-            ft.Text(
-                ref=title_ref,
-                value=r_name, 
-                size=40, 
-                weight=ft.FontWeight.BOLD, 
-                color="#ffffff", 
-                text_align="center"
-            ),
-        ],
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER
-    )
-
-    btn_play = ft.Container(
-        content=ft.Row(
-            [
-                ft.Icon(ft.Icons.PLAY_ARROW, size=60, color="#ffffff"),
-                ft.Text("JUGAR", size=30, weight="bold", color="#ffffff")
-            ], 
-            alignment=ft.MainAxisAlignment.CENTER
-        ),
-        bgcolor="#ed223f",
-        width=300, height=100,
-        border_radius=20,
+    # Vista Previa (Estática, solo imagen)
+    # Usamos un contenedor simple, sin lógica de giro
+    preview_container = ft.Container(
+        ref=preview_ref,
+        content=get_visual_roulette(items_actuales, size=200),
+        width=200, height=200,
+        border_radius=100,
         alignment=ft.Alignment.CENTER,
-        ink=True,
-        on_click=lambda e: print(f"Jugar ruleta: {title_ref.current.value}") 
+        # Sombra suave para darle estilo
+        shadow=ft.BoxShadow(blur_radius=20, color=ft.Colors.with_opacity(0.2, "black")) 
     )
 
-    def option_btn(icon, text, color, on_click_func):
+    # Botones de Acción
+    def action_btn(text, color, icon, func):
         return ft.Container(
-            content=ft.Column(
-                [
-                    ft.Icon(icon, size=35, color=color),
-                    ft.Text(text, color="#ffffff", size=14, weight="bold")
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                spacing=5
-            ),
-            bgcolor="#252525",
-            width=130, height=130,
+            content=ft.Row([
+                ft.Icon(icon, color="#ffffff"),
+                ft.Text(text, size=18, color="#ffffff", weight="bold")
+            ], alignment=ft.MainAxisAlignment.CENTER),
+            bgcolor=color,
+            height=60, width=300,
             border_radius=15,
-            border=ft.border.all(1, color),
             alignment=ft.Alignment.CENTER,
-            ink=True,
-            on_click=on_click_func
+            on_click=func,
+            ink=True
         )
-
-    options_row = ft.Row(
-        [
-            option_btn(ft.Icons.LIST, "Editar\nOpciones", "#cc9038", lambda e: print("Ir a items...")),
-            option_btn(ft.Icons.EDIT, "Cambiar\nNombre", "#6193B4", lambda e: open_dlg(rename_dialog)),
-            option_btn(ft.Icons.DELETE, "Borrar\nRuleta", "#ff0000", lambda e: open_dlg(delete_dialog)),
-        ],
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=20
-    )
 
     page.add(
         ft.Column(
             [
-                ft.Container(height=10),
                 header,
+                ft.Container(height=10),
+                ft.Container(content=lbl_title, alignment=ft.Alignment.CENTER),
                 ft.Container(height=20),
-                ft.Container(content=title_display, alignment=ft.Alignment.CENTER),
+                
+                # Vista Previa
+                ft.Container(content=preview_container, alignment=ft.Alignment.CENTER),
+                ft.Text("Vista Previa", color="#cccccc", size=12),
+                
                 ft.Container(height=40),
-                ft.Container(content=btn_play, alignment=ft.Alignment.CENTER),
-                ft.Container(height=40),
-                ft.Divider(color="#cc9038"),
-                ft.Text("Configuración", color="#aaaaaa", size=16, text_align="center"),
-                ft.Container(height=20),
-                options_row
+                
+                # Botón JUGAR (Grande y destacado)
+                action_btn("JUGAR AHORA", "#ED223F", ft.Icons.PLAY_ARROW, go_to_play),
+                
+                ft.Container(height=15),
+                
+                # Botón Editar Opciones
+                action_btn("EDITAR OPCIONES", "#8e44ad", ft.Icons.LIST, lambda e: print("Abrir editor...")),
+                
+                ft.Container(height=30),
+                ft.Divider(color="#cccccc"),
+                
+                ft.Row([
+                    ft.TextButton("Renombrar Ruleta", icon=ft.Icons.EDIT, on_click=lambda e: (setattr(rename_dialog, 'open', True), page.update())),
+                    ft.TextButton("Borrar Ruleta", icon=ft.Icons.DELETE, icon_color="red", style=ft.ButtonStyle(color="#ff0000"), on_click=lambda e: (setattr(delete_dialog, 'open', True), page.update()))
+                ], alignment=ft.MainAxisAlignment.CENTER)
             ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            scroll=ft.ScrollMode.AUTO
         )
     )
