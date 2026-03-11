@@ -2,7 +2,7 @@ import flet as ft
 from Roulette.Options.crud import get_roulette_items_text
 from Roulette.crud import delete_roulette_db, update_roulette_db
 from Utilities.helpers import get_visual_roulette
-# --- IMPORTAMOS LA LÓGICA DEL JUEGO ---
+from Roulette.Options.option_menu import view_option_menu
 from Roulette.Gameplay.play import view_play_roulette 
 
 def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
@@ -79,6 +79,14 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
             on_click=func,
             ink=True
         )
+    def go_to_options(e):
+        def back_from_options(updated_name):
+            # Recargamos la pantalla de ruleta usando el nombre actualizado
+            view_roulette_details(page, user_id, r_id, updated_name, on_back)
+
+        # Usamos el valor actual por si ya se había editado antes
+        current_name = title_ref.current.value 
+        view_option_menu(page, user_id, r_id, current_name, on_back=back_from_options)
 
     page.add(
         ft.Column(
@@ -97,7 +105,7 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
                 
                 ft.Container(height=15),
                 
-                action_btn("EDITAR OPCIONES", "#8e44ad", ft.Icons.LIST, lambda e: print("Abrir editor...")),
+                action_btn("EDITAR OPCIONES", "#8e44ad", ft.Icons.LIST, go_to_options),
                 
                 ft.Container(height=30),
                 ft.Divider(color="#cccccc"),

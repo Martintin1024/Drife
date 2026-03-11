@@ -16,4 +16,4 @@ def main(page: ft.Page):
 
     go_to_login()
 
-ft.app(main)
+ft.run(main)
