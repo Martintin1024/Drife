@@ -2,6 +2,7 @@ import flet as ft
 from Roulette.Options.crud import get_roulette_items_text
 from Roulette.crud import get_user_roulettes, create_roulette_db
 from Roulette.roulette_menu import view_roulette_details
+from Roulette.create_menu import view_create_menu
 from Utilities.helpers import get_visual_roulette
 
 def view_dashboard(page: ft.Page, user_id, on_logout):
@@ -17,6 +18,13 @@ def view_dashboard(page: ft.Page, user_id, on_logout):
             user_id, 
             r_id, 
             r_name, 
+            on_back=lambda: view_dashboard(page, user_id, on_logout)
+        )
+
+    def go_to_create(e):
+        view_create_menu(
+            page, 
+            user_id, 
             on_back=lambda: view_dashboard(page, user_id, on_logout)
         )
 
@@ -51,7 +59,7 @@ def view_dashboard(page: ft.Page, user_id, on_logout):
             card = create_roulette_card(r_id, r_name)
             items_grid.append(card)
 
-        new_btn= ft.Container(
+        new_btn = ft.Container(
             content=ft.Column(
                 [
                     ft.Icon(ft.Icons.ADD_CIRCLE_OUTLINE, size=50, color="#CC9038"), 
@@ -65,7 +73,7 @@ def view_dashboard(page: ft.Page, user_id, on_logout):
             border_radius=20,
             padding=15,
             alignment=ft.Alignment.CENTER,
-            on_click=open_create_dialog 
+            on_click=go_to_create # <--- LO CONECTAMOS AQUÍ
         )
         items_grid.append(new_btn)
         
@@ -75,36 +83,6 @@ def view_dashboard(page: ft.Page, user_id, on_logout):
         grid_roulettes.controls = charge_roulettes()
         grid_roulettes.update()
 
-    txt_new_name = ft.TextField(label="Nombre de la ruleta", autofocus=True)
-
-    def confirm_creation(e):
-        name = txt_new_name.value.strip()
-        if name:
-            success, message = create_roulette_db(user_id, name)
-            if success:
-                txt_new_name.value = ""
-                create_dialog.open = False
-                page.update()
-                update_grid() 
-                page.show_snack_bar(ft.SnackBar(ft.Text("¡Ruleta creada!")))
-            else:
-                page.show_snack_bar(ft.SnackBar(ft.Text(f"Error: {message}")))
-        else:
-             page.show_snack_bar(ft.SnackBar(ft.Text("Escribe un nombre válido")))
-
-    create_dialog = ft.AlertDialog(
-        title=ft.Text("Crear Nueva Ruleta"),
-        content=txt_new_name,
-        actions=[
-            ft.TextButton("Cancelar", on_click=lambda e: page.close_dialog()),
-            ft.ElevatedButton("Crear", on_click=confirm_creation),
-        ],
-    )
-
-    def open_create_dialog(e):
-        page.dialog = create_dialog
-        create_dialog.open = True
-        page.update()
 
     grid_roulettes = ft.GridView(
         expand=True,

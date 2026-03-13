@@ -37,19 +37,6 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
         ],
     )
 
-    txt_rename = ft.TextField(label="Nuevo nombre", value=r_name, border_color="#cc9038")
-    def confirm_rename(e):
-        if txt_rename.value:
-            update_roulette_db(user_id, r_id, txt_rename.value)
-            title_ref.current.value = txt_rename.value
-            close_dlg(rename_dialog)
-            page.update()
-
-    rename_dialog = ft.AlertDialog(
-        content=txt_rename,
-        actions=[ft.ElevatedButton("Guardar", on_click=confirm_rename)],
-    )
-
     header = ft.Row([
         ft.IconButton(ft.Icons.ARROW_BACK, icon_color="#ffffff", on_click=lambda e: on_back()),
         ft.Text("Volver", color="#cccccc")
@@ -105,13 +92,12 @@ def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
                 
                 ft.Container(height=15),
                 
-                action_btn("EDITAR OPCIONES", "#8e44ad", ft.Icons.LIST, go_to_options),
+                action_btn("EDITAR RULETA", "#CC9038", ft.Icons.LIST, go_to_options),
                 
                 ft.Container(height=30),
                 ft.Divider(color="#cccccc"),
                 
                 ft.Row([
-                    ft.TextButton("Renombrar Ruleta", icon=ft.Icons.EDIT, on_click=lambda e: (setattr(rename_dialog, 'open', True), page.update())),
                     ft.TextButton("Borrar Ruleta", icon=ft.Icons.DELETE, icon_color="red", style=ft.ButtonStyle(color="#ff0000"), on_click=lambda e: (setattr(delete_dialog, 'open', True), page.update()))
                 ], alignment=ft.MainAxisAlignment.CENTER)
             ],

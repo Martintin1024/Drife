@@ -2,7 +2,7 @@ import sqlite3
 from Utilities.helpers import set_db_path
 
 def create_roulette_db(user_id, name_roulette):
-    """Crea una ruleta y devuelve (True, Mensaje) o (False, Error)"""
+    """Crea una ruleta y devuelve (True, NUEVO_ID) o (False, Error)"""
     db_path = set_db_path()
     conn = None
     try:
@@ -11,8 +11,12 @@ def create_roulette_db(user_id, name_roulette):
 
         sql_create = "INSERT INTO Roulettes (user_id, name_roulette) VALUES (?, ?)"
         cursor.execute(sql_create, (user_id, name_roulette))
+        
+        # LA MAGIA: Obtenemos el ID que la base de datos acaba de crear
+        new_id = cursor.lastrowid 
+        
         conn.commit()
-        return True, "Ruleta creada con éxito"
+        return True, new_id
 
     except sqlite3.Error as e:
         return False, f"Error SQL: {e}"

@@ -77,3 +77,25 @@ def get_visual_roulette(items: list, size: int = 300):
     except Exception as e:
         print(f"Error generando gráfico: {e}")
         return ft.Icon(default_icon, size=size, color=default_color)
+    
+def create_header(title_text, on_back_func):
+    """Crea el encabezado estándar con botón de volver para cualquier menú"""
+    return ft.Row([
+        ft.IconButton(ft.Icons.ARROW_BACK, icon_color="#ffffff", on_click=on_back_func),
+        ft.Text(title_text, size=30, color="#ffffff", weight="bold")
+    ], alignment=ft.MainAxisAlignment.START)
+
+def create_action_btn(text, color, icon, on_click_func):
+    """Crea un botón ancho estándar (como el de Jugar, Editar, etc.)"""
+    return ft.Container(
+        content=ft.Row([
+            ft.Icon(icon, color="#ffffff"),
+            ft.Text(text, size=18, color="#ffffff", weight="bold")
+        ], alignment=ft.MainAxisAlignment.CENTER),
+        bgcolor=color,
+        height=60, width=300,
+        border_radius=15,
+        alignment=ft.Alignment.CENTER,
+        on_click=on_click_func,
+        ink=True
+    )

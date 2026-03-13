@@ -96,7 +96,7 @@ def view_option_menu(page: ft.Page, user_id, r_id, r_name, on_back):
     # Barra inferior destacada para añadir
     row_add = ft.Container(
         content=ft.Row([
-            ft.Icon(ft.Icons.ADD_CIRCLE, color="#8e44ad", size=30),
+            ft.Icon(ft.Icons.ADD_CIRCLE, color="#CC9038", size=30),
             txt_new_opt,
             ft.IconButton(
                 icon=ft.Icons.SEND, 
@@ -108,11 +108,11 @@ def view_option_menu(page: ft.Page, user_id, r_id, r_name, on_back):
         bgcolor="#1f1f1f",
         padding=10,
         border_radius=15,
-        border=ft.border.all(2, "#8e44ad") # Borde morado para destacarlo
+        border=ft.border.all(2, "#CC9038") # Borde morado para destacarlo
     )
 
     # --- TÍTULO DE LA RULETA ---
-    txt_title = ft.TextField(value=r_name, label="Título", border_color="#8e44ad", color="#ffffff", expand=True)
+    txt_title = ft.TextField(value=r_name, label="Título", border_color="#CC9038", color="#ffffff", expand=True)
     
     def save_title(e):
         if txt_title.value:
