@@ -4,7 +4,7 @@ from Roulette.crud import update_roulette_db
 
 def view_option_menu(page: ft.Page, user_id, r_id, r_name, on_back):
     page.clean()
-    page.title = f"Editar Opciones - {r_name}"
+    page.title = "Drife"
     page.bgcolor = "#1a1a1a" 
 
     options_column = ft.Column(spacing=10, scroll=ft.ScrollMode.AUTO, expand=True)
@@ -100,7 +100,7 @@ def view_option_menu(page: ft.Page, user_id, r_id, r_name, on_back):
             txt_new_opt,
             ft.IconButton(
                 icon=ft.Icons.SEND, 
-                icon_color="#8e44ad", 
+                icon_color="#CC9038", 
                 tooltip="Añadir (Enter)", 
                 on_click=add_inline
             )

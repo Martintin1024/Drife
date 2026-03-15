@@ -6,7 +6,7 @@ from Utilities.helpers import create_header, create_action_btn
 
 def view_create_menu(page: ft.Page, user_id, on_back):
     page.clean()
-    page.title = "Crear Nueva Ruleta"
+    page.title = "Drife"
     page.bgcolor = "#1a1a1a"
 
     # 1. Campo para el Nombre de la Ruleta
