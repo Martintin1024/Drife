@@ -6,7 +6,8 @@ from Utilities.helpers import create_header, create_action_btn
 
 def view_create_menu(page: ft.Page, user_id, on_back):
     page.clean()
-    page.title = "Drife"
+    page.window.icon = "favicon.png"
+    page.title = "Drife: Draw your Life"
     page.bgcolor = "#1a1a1a"
 
     # 1. Campo para el Nombre de la Ruleta

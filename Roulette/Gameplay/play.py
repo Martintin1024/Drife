@@ -7,7 +7,8 @@ from Utilities.helpers import get_visual_roulette
 
 def view_play_roulette(page: ft.Page, user_id, r_id, r_name, on_back):
     page.clean()
-    page.title = "Drife"
+    page.window.icon = "favicon.png"
+    page.title = "Drife: Draw your Life"
     page.bgcolor = "#000000"
     
     current_items = get_roulette_items_text(r_id)

@@ -8,7 +8,8 @@ from Roulette.Gameplay.play import view_play_roulette
 
 def view_roulette_details(page: ft.Page, user_id, r_id, r_name, on_back):
     page.clean()
-    page.title = "Drife"
+    page.window.icon = "favicon.png"
+    page.title = "Drife: Draw your Life"
     page.bgcolor = "#1a1a1a"
     page.padding = 20
 

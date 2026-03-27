@@ -5,7 +5,8 @@ from Users.register_menu import view_register
 from Roulette.main_menu import view_dashboard
 
 def main(page: ft.Page):
-    page.title = "drife"
+    page.window.image = "favicon.png"
+    page.title = "Drife: Draw your Life"
     page.theme_mode = ft.ThemeMode.DARK
     page.window_width = 400
     page.window_height = 750 # le di un poquito mas de altura para que entren los 4 campos comodos

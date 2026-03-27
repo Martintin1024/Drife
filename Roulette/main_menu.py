@@ -13,7 +13,8 @@ load_dotenv()
 
 def view_dashboard(page: ft.Page, user_id, on_logout):
     page.clean()
-    page.title = "Drife"
+    page.window.icon = "favicon.png"
+    page.title = "Drife: Draw your Life"
     page.bgcolor = "#1a1a1a"  
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.padding = 20
