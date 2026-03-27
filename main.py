@@ -1,4 +1,5 @@
 import flet as ft
+import os
 from Users.login_menu import view_login
 from Users.register_menu import view_register
 from Roulette.main_menu import view_dashboard
@@ -20,4 +21,6 @@ def main(page: ft.Page):
 
     go_to_login()
 
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+puerto = int(os.environ.get("PORT", 8000))
+
+ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=puerto, host="0.0.0.0")
