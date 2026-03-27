@@ -1,76 +1,48 @@
-import sqlite3
-from Utilities.helpers import set_db_path
+from Utilities.helpers import supabase
 
 def create_roulette_db(user_id, name_roulette):
-    """Crea una ruleta y devuelve (True, NUEVO_ID) o (False, Error)"""
-    db_path = set_db_path()
-    conn = None
+    """Crea una ruleta y devuelve (True, nuevo_id) o (False, error)"""
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        sql_create = "INSERT INTO Roulettes (user_id, name_roulette) VALUES (?, ?)"
-        cursor.execute(sql_create, (user_id, name_roulette))
+        data_to_insert = {
+            "user_id": user_id,
+            "name_roulette": name_roulette
+        }
         
-        # LA MAGIA: Obtenemos el ID que la base de datos acaba de crear
-        new_id = cursor.lastrowid 
+        response = supabase.table("roulettes").insert(data_to_insert).execute()
+        new_id = response.data[0]["roulette_id"]
         
-        conn.commit()
         return True, new_id
 
-    except sqlite3.Error as e:
-        return False, f"Error SQL: {e}"
-    finally:
-        if conn: conn.close()
+    except Exception as e:
+        return False, f"Error en la nube: {e}"
 
 def get_user_roulettes(user_id):
     """Devuelve una lista de tuplas [(id, nombre), (id, nombre)...]"""
-    db_path = set_db_path()
-    conn = None
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
+        response = supabase.table("roulettes").select("roulette_id, name_roulette").eq("user_id", user_id).execute()
+        roulettes_data = response.data
         
-        sql = "SELECT roulette_id, name_roulette FROM Roulettes WHERE user_id = ?"
-        cursor.execute(sql, (user_id,))
-        results = cursor.fetchall()
-        return results # Retorna la lista (puede estar vacía)
+        results = [(r["roulette_id"], r["name_roulette"]) for r in roulettes_data]
+        return results
 
-    except sqlite3.Error:
+    except Exception:
         return []
-    finally:
-        if conn: conn.close()
 
 def delete_roulette_db(user_id, roulette_id):
     """Borra una ruleta específica"""
-    db_path = set_db_path()
-    conn = None
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        sql = "DELETE FROM Roulettes WHERE roulette_id = ? AND user_id = ?"
-        cursor.execute(sql, (roulette_id, user_id))
-        conn.commit()
+        supabase.table("roulettes").delete().eq("roulette_id", roulette_id).eq("user_id", user_id).execute()
         return True
-    except sqlite3.Error:
+    except Exception:
         return False
-    finally:
-        if conn: conn.close()
 
 def update_roulette_db(user_id, roulette_id, new_name):
-    db_path = set_db_path()
-    conn = None
+    """Actualiza el nombre de la ruleta"""
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
+        data_to_update = {"name_roulette": new_name}
+        supabase.table("roulettes").update(data_to_update).eq("roulette_id", roulette_id).eq("user_id", user_id).execute()
         
-        sql = "UPDATE Roulettes SET name_roulette = ? WHERE roulette_id = ? AND user_id = ?"
-        cursor.execute(sql, (new_name, roulette_id, user_id))
-        conn.commit()
         return True, "Nombre actualizado correctamente"
         
-    except sqlite3.Error as e:
-        return False, f"Error SQL: {e}"
-    finally:
-        if conn: conn.close()
+    except Exception as e:
+        return False, f"Error en la nube: {e}"

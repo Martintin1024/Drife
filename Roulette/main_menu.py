@@ -1,11 +1,15 @@
 import flet as ft
 from google import genai
+from dotenv import load_dotenv
+import os
 import threading 
 from Roulette.Options.crud import get_roulette_items_text, create_option_db
 from Roulette.crud import get_user_roulettes, create_roulette_db
 from Roulette.roulette_menu import view_roulette_details
 from Utilities.helpers import get_visual_roulette
 from Roulette.create_menu import view_create_menu
+
+load_dotenv()
 
 def view_dashboard(page: ft.Page, user_id, on_logout):
     page.clean()
@@ -15,7 +19,7 @@ def view_dashboard(page: ft.Page, user_id, on_logout):
     page.padding = 20
     
     # --- ai config ---
-    api_key = "aca iria la api key"
+    api_key = os.getenv("GEMINI_API_KEY")
 
     def go_to_details(r_id, r_name):
         view_roulette_details(

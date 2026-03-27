@@ -1,50 +1,52 @@
-import sqlite3
-from Utilities.helpers import set_db_path
+from Utilities.helpers import supabase
 
-def register_new_user(user_name, pass_word):
-    db_path = set_db_path()
-    conn = None
+def register_user(email, user_name, password):
+    if not email.strip() or not user_name.strip() or not password.strip():
+        return False, "Campos vacíos"
+
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        if not user_name.strip() or not pass_word.strip():
-            return False, "Campos vacíos"
-
-        sql_insert = "INSERT INTO Users (user_name, password) VALUES (?, ?)"
-        cursor.execute(sql_insert, (user_name, pass_word))
-        conn.commit()   
-        return True, "Usuario creado con éxito"
-
-    except sqlite3.Error as e:
-        if conn:
-            conn.rollback()
-        return False, "Este usuario ya fue creado, ingrese uno nuevo"
-
-    finally:
-        if conn:
-            conn.close()
-
-def log_in_user(user_name, pass_word):
-    db_path = set_db_path()
-    conn = None
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        sql_search = "SELECT user_id, user_name FROM Users WHERE user_name = ? AND password = ?"
-        cursor.execute(sql_search, (user_name, pass_word))
-
-        result = cursor.fetchone()
+        # Creamos el usuario y guardamos el user_name en los metadatos internos
+        response = supabase.auth.sign_up({
+            "email": email,
+            "password": password,
+            "options": {
+                "data": {
+                    "user_name": user_name 
+                }
+            }
+        })
+        return True, "¡Usuario creado! Por favor, revisa tu correo para verificar la cuenta."
         
-        if result:
-            return result[0]
-        else:
-            return None 
+    except Exception as e:
+        print(f"auth register error: {e}")
+        return False, "Error al registrar. Puede que el correo ya exista o la contraseña sea débil."
 
-    except sqlite3.Error as e:
+def login_user(email, password):
+    try:
+        # El usuario intenta iniciar sesión usando la conexión compartida
+        response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+        
+        if response.user:
+            user_id = response.user.id
+            user_name = response.user.user_metadata.get("user_name", "")
+            
+            # Como ya inició sesión, creamos/actualizamos su perfil en la tabla pública
+            try:
+                supabase.table("users").upsert({
+                    "user_id": user_id,
+                    "email": email,
+                    "user_name": user_name
+                }).execute()
+            except Exception as e:
+                print(f"Error guardando el perfil en la tabla users: {e}")
+
+            return user_id
+            
         return None
-    
-    finally:
-        if conn:
-            conn.close()
+
+    except Exception as e:
+        print(f"auth login error: {e}")
+        return None

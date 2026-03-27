@@ -7,7 +7,7 @@ from Utilities.helpers import get_visual_roulette
 
 def view_play_roulette(page: ft.Page, user_id, r_id, r_name, on_back):
     page.clean()
-    page.title = f"Jugando: {r_name}"
+    page.title = "Drife"
     page.bgcolor = "#000000"
     
     current_items = get_roulette_items_text(r_id)
@@ -110,7 +110,6 @@ def view_play_roulette(page: ft.Page, user_id, r_id, r_name, on_back):
         border_radius=30,
         alignment=ft.Alignment.CENTER,
         on_click=spin_roulette,
-        ink=True,
         shadow=ft.BoxShadow(blur_radius=15, color=ft.Colors.with_opacity(0.4, "#27ae60"))
     )
 

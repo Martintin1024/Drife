@@ -99,3 +99,14 @@ def create_action_btn(text, color, icon, on_click_func):
         on_click=on_click_func,
         ink=True
     )
+
+from dotenv import load_dotenv
+from supabase import create_client, Client
+
+# Cargar las variables de entorno
+load_dotenv()
+
+# Inicializar Supabase de forma segura y centralizada (El "Enchufe")
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(supabase_url, supabase_key)
