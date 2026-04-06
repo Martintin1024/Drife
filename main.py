@@ -24,4 +24,4 @@ def main(page: ft.Page):
 
 puerto = int(os.environ.get("PORT", 8000))
 
-ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=puerto, host="0.0.0.0")
+ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=puerto, host="0.0.0.0", assets_dir="Assets")
