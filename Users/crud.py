@@ -4,6 +4,9 @@ def register_user(email, user_name, password):
     if not email.strip() or not user_name.strip() or not password.strip():
         return False, "Campos vacíos"
 
+    if "@" in user_name:
+        return False, "El nombre de usuario no puede contener el símbolo: @"
+
     try:
         # Creamos el usuario y guardamos el user_name en los metadatos internos
         response = supabase.auth.sign_up({
@@ -21,8 +24,19 @@ def register_user(email, user_name, password):
         print(f"auth register error: {e}")
         return False, "Error al registrar. Puede que el correo ya exista o la contraseña sea débil."
 
-def login_user(email, password):
+def login_user(login_text, password):
     try:
+        if "@" in login_text:
+            email = login_text
+        else:
+            search = supabase.table("users").select("email").eq("user_name", login_text).execute()
+            if search.data:
+                # Lo encontramos, le extraemos el email asociado
+                email = search.data[0]['email']
+            else:
+                # No existe nadie con ese nombre de usuario
+                print("Error: El nombre de usuario no existe.")
+                return None
         # El usuario intenta iniciar sesión usando la conexión compartida
         response = supabase.auth.sign_in_with_password({
             "email": email,

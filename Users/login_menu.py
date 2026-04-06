@@ -4,7 +4,7 @@ from Users.crud import login_user
 def view_login(page: ft.Page, on_login_success, on_go_to_register):
     page.clean()
     
-    email_field = ft.TextField(label="Correo electrónico", width=280, icon=ft.Icons.EMAIL)
+    email_field = ft.TextField(label="Email o Usuario", width=280, icon=ft.Icons.EMAIL)
     password_field = ft.TextField(label="Contraseña", width=280, password=True, can_reveal_password=True, icon=ft.Icons.LOCK)
     message_label = ft.Text(color="#ff0000")
     
