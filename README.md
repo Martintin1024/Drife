@@ -41,9 +41,11 @@ Sin embargo, Drife es un proyecto en constante evolución. En este momento me en
 - [x] Conexión robusta con Supabase (Autenticación + Base de Datos).
 - [x] Implementación de políticas de seguridad nivel servidor (RLS).
 - [x] Integración de la API de Google Gemini para creación automática.
-- [ ] **[WIP]** Refinamiento visual y animaciones avanzadas en Flet.
+- [ ] Corregir validaciones de registro y mantener inicio de sesión.
+- [ ] Bloquear clicks al hacer cargar el programa (inicio de sesión, girar ruleta, crear ruleta, etc).
 - [ ] Desarrollo lógico y visual: Modalidad "Ruleta con pesos".
 - [ ] Desarrollo lógico y visual: Modalidad "Ruleta eliminatoria".
+- [ ] **[WIP]** Refinamiento visual y animaciones avanzadas en Flet.
 
 ## ⛃ Arquitectura de Base de Datos
 La base de datos evolucionó a **PostgreSQL** (gestionada mediante Supabase). Está normalizada y utiliza identificadores únicos universales (`UUID`) para garantizar que la conexión con la bóveda de autenticación (`auth.users`) sea impenetrable. 
